@@ -31,3 +31,4 @@ Ao final das aulas teremos todo o projeto, no momento estamos na aula 01 do Djan
 ![alt text](./arquitetura_projeto.png)# ethos-full_project_docker-deploy
 # ethos-full_project_docker-deploy
 # ethos-full_project_docker-deploy
+# ethos-aws-version

@@ -21,6 +21,7 @@ from django.urls import path, include
 urlpatterns = [
     path('', include('school_contebras_core_video.urls')),
     path('admin/', admin.site.urls),
+    path('accounts/', include('django.contrib.auth.urls')),  # <-- essa linha é essencial
 ]
 # from django.contrib import admin
 # from django.urls import include, path
