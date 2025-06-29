@@ -67,3 +67,276 @@
    after that your aplication is fully up
 
 
+
+logs of the flow
+django admin when upload one video
+
+
+[29/Jun/2025 01:37:52] "GET /static/css/img/icon-yes.svg HTTP/1.1" 404 1874
+[29/Jun/2025 01:37:52] "GET /static/css/img/tooltag-add.svg HTTP/1.1" 404 1883
+[29/Jun/2025 01:37:52] "GET /static/css/img/icon-addlink.svg HTTP/1.1" 404 1886
+[29/Jun/2025 01:37:52] "GET /static/css/img/icon-viewlink.svg HTTP/1.1" 404 1889
+[29/Jun/2025 01:37:56] "GET /admin/school_contebras_core_video/video/1/upload-video HTTP/1.1" 200 16864
+[29/Jun/2025 01:37:56] "GET /static/css/img/icon-addlink.svg HTTP/1.1" 404 1886
+[29/Jun/2025 01:38:12] "POST /admin/school_contebras_core_video/video/1/upload-video HTTP/1.1" 204 2
+[29/Jun/2025 01:38:13] "POST /admin/school_contebras_core_video/video/1/upload-video HTTP/1.1" 204 2
+[29/Jun/2025 01:38:14] "POST /admin/school_contebras_core_video/video/1/upload-video HTTP/1.1" 204 2
+[29/Jun/2025 01:38:14] "POST /admin/school_contebras_core_video/video/1/upload-video HTTP/1.1" 204 2
+[29/Jun/2025 01:38:14] "POST /admin/school_contebras_core_video/video/1/upload-video HTTP/1.1" 204 2
+[29/Jun/2025 01:38:15] "POST /admin/school_contebras_core_video/video/1/upload-video HTTP/1.1" 204 2
+[29/Jun/2025 01:38:15] "POST /admin/school_contebras_core_video/video/1/upload-video HTTP/1.1" 204 2
+[29/Jun/2025 01:38:16] "POST /admin/school_contebras_core_video/video/1/upload-video HTTP/1.1" 204 2
+[29/Jun/2025 01:38:17] "POST /admin/school_contebras_core_video/video/1/upload-video HTTP/1.1" 204 2
+[29/Jun/2025 01:38:17] "POST /admin/school_contebras_core_video/video/1/upload-video HTTP/1.1" 204 2
+[29/Jun/2025 01:38:17] "POST /admin/school_contebras_core_video/video/1/upload-video HTTP/1.1" 204 2
+[29/Jun/2025 01:38:18] "POST /admin/school_contebras_core_video/video/1/upload-video HTTP/1.1" 204 2
+[29/Jun/2025 01:38:18] "POST /admin/school_contebras_core_video/video/1/upload-video/finish HTTP/1.1" 204 2
+
+flow of django consumer 1
+python manage.py  consumer_upload_chunks_to_external_storage
+Starting consumer....
+Waiting for messages....
+Processing message: {'video_id': 1, 'path': '/tmp/videos/1'}
+Arquivo /tmp/videos/1/11.chunk movido para /media/uploads/1.
+Arquivo /tmp/videos/1/1.chunk movido para /media/uploads/1.
+Arquivo /tmp/videos/1/2.chunk movido para /media/uploads/1.
+Arquivo /tmp/videos/1/0.chunk movido para /media/uploads/1.
+Arquivo /tmp/videos/1/10.chunk movido para /media/uploads/1.
+Arquivo /tmp/videos/1/5.chunk movido para /media/uploads/1.
+Arquivo /tmp/videos/1/6.chunk movido para /media/uploads/1.
+Arquivo /tmp/videos/1/3.chunk movido para /media/uploads/1.
+Arquivo /tmp/videos/1/9.chunk movido para /media/uploads/1.
+Arquivo /tmp/videos/1/8.chunk movido para /media/uploads/1.
+Arquivo /tmp/videos/1/7.chunk movido para /media/uploads/1.
+Arquivo /tmp/videos/1/4.chunk movido para /media/uploads/1.
+Waiting for messages....
+
+flow of golang video converter
+ go run cmd/videoconverter/main.go 
+Jun 29 03:39:23.909 INF Connected to PostgreSQL successfully
+Jun 29 03:39:23.352 INF Waiting for messages from RabbitMQ
+Jun 29 04:38:18.738 INF Merging chunks path=/media/uploads/1
+Jun 29 04:39:17.278 INF Converted to MPEG-DASH path=/media/uploads/1/mpeg-dash
+Jun 29 04:39:17.320 INF Removed merged file file=/media/uploads/1/merged.mp4
+Jun 29 04:39:17.320 INF Video conversion processed video_id=1
+Jun 29 04:39:17.324 INF Video marked as processed video_id=1
+
+flow of django consumer 2
+ python manage.py consumer_register_processed_video_path
+Starting consumer....
+Waiting for messages....
+Processing message: {'video_id': 1, 'path': '/media/uploads/1'}
+Waiting for messages....
+
+
+# Ethos Platform - Step by Step to Run the Project with Docker
+
+This document explains how to properly run the project using Docker and how the video upload and processing flow works.
+
+---
+
+## 🐳 Step 1: Run All Containers
+
+From the root folder of the project, in **terminal 1**, execute:
+
+```bash
+docker compose up -d --build
+```
+
+✅ This command will build and start all containers.
+
+---
+
+## ⚙️ Step 2: Run Go Application (Video Converter)
+
+In **terminal 2**, run:
+
+```bash
+docker compose exec -it go_app_dev bash
+```
+
+Inside the container shell:
+
+```bash
+go run cmd/videoconverter/main.go
+```
+
+✅ You should see:
+
+```
+INF Connected to PostgreSQL successfully
+INF Waiting for messages from RabbitMQ
+```
+
+---
+
+## ⚙️ Step 3: Prepare and Run Django Admin
+
+In **terminal 3**, run:
+
+```bash
+docker compose exec -it django bash
+```
+
+Inside the container shell:
+
+```bash
+pipenv shell
+```
+
+### If it's the first time running the container:
+
+```bash
+pip install \
+  dj-database-url \
+  djangorestframework \
+  psycopg2-binary \
+  Pillow \
+  kombu
+```
+
+### Run migrations and create a superuser:
+
+```bash
+python manage.py migrate
+python manage.py createsuperuser
+```
+
+Suggested credentials:
+
+* **Username:** admin1
+* **Email:** [admin@user.com](mailto:admin@user.com)
+* **Password:** secret
+
+When prompted about password strength, type `y` to confirm.
+
+### Run Django server:
+
+```bash
+python manage.py runserver 0.0.0.0:8000
+```
+
+✅ Django Admin will be available at: [http://localhost:8000/admin](http://localhost:8000/admin)
+
+---
+
+## ⚙️ Step 4: Run Django Consumers
+
+### Consumer 1 - Upload Chunks to External Storage
+
+In **terminal 4**, run:
+
+```bash
+docker compose exec -it django bash
+```
+
+Inside the container:
+
+```bash
+pipenv shell
+python manage.py consumer_upload_chunks_to_external_storage
+```
+
+✅ You should see messages like:
+
+```
+Starting consumer....
+Waiting for messages....
+Processing message: {'video_id': 1, 'path': '/tmp/videos/1'}
+... files moved to /media/uploads ...
+```
+
+### Consumer 2 - Register Processed Video Path
+
+In **terminal 5**, run:
+
+```bash
+docker compose exec -it django bash
+```
+
+Inside the container:
+
+```bash
+pipenv shell
+python manage.py consumer_register_processed_video_path
+```
+
+✅ You should see:
+
+```
+Starting consumer....
+Waiting for messages....
+```
+
+---
+
+## ⚙️ Step 5: Run Next.js Frontend
+
+In **terminal 6**, run:
+
+```bash
+docker compose exec -it nextjs bash
+```
+
+### If it's the first time running:
+
+```bash
+npm install
+npm run dev
+```
+
+### If not the first time:
+
+```bash
+npm run dev
+```
+
+✅ The site will be available at: [http://localhost:3000](http://localhost:3000)
+
+---
+
+# 🎬 Video Upload and Processing Flow
+
+### 1. Upload via Django Admin
+
+* Access: [http://localhost:8000/admin](http://localhost:8000/admin)
+* Upload video file through the interface.
+
+Example logs:
+
+```
+POST /admin/school_contebras_core_video/video/1/upload-video HTTP/1.1 204 2
+...
+POST /admin/school_contebras_core_video/video/1/upload-video/finish HTTP/1.1 204 2
+```
+
+### 2. Chunk Movement by Consumer 1
+
+```
+Processing message: {'video_id': 1, 'path': '/tmp/videos/1'}
+... files moved to /media/uploads/1 ...
+```
+
+### 3. Video Conversion by Go Application
+
+```
+INF Merging chunks path=/media/uploads/1
+INF Converted to MPEG-DASH path=/media/uploads/1/mpeg-dash
+INF Removed merged file file=/media/uploads/1/merged.mp4
+INF Video conversion processed video_id=1
+INF Video marked as processed video_id=1
+```
+
+### 4. Finalization by Consumer 2
+
+```
+Processing message: {'video_id': 1, 'path': '/media/uploads/1'}
+Waiting for messages....
+```
+
+---
+
+# ✅ Application Fully Running!
+
+You can now test video uploads and playback through the frontend.
+
