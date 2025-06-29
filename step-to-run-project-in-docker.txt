@@ -1,0 +1,69 @@
+1 inside of root folder
+ in cli 1
+  run docker compose up -d --build
+  ---this command will up all the containers
+  in the same folder
+2 to work with each container
+  --work with service of golang
+  in the cli 2
+  run docker compose exec -it go_app_dev bash
+  inside of the bash 
+  run go run cmd/videoconverter/main.go 
+  This will able to work with
+   INF Connected to PostgreSQL successfully
+   INF Waiting for messages from RabbitMQ
+ in the same folder
+2 Now we will work with the container Django
+  --First we will able the django admin and your services
+  in the cli 3
+  run docker command exec -it django bash
+  inside the bash we will
+  rnn pipenv shell
+  inside the venv if it work for the first time the we run this django container we will install this dependences.
+  But if it won't be the first time that we run this django container won't do this step.
+  run pip install \
+      dj-database-url \
+      djangorestframework \
+      psycopg2-binary \
+      Pillow \
+      kombu
+  after we had installed the dependences, we will use this command
+  run  python manage.py migrate,
+  run python manage.py createsuperuser username we'll use user:admin1@ admin@user.com, email: admin@user.com, password: secret confirm password: secretthe 
+  program will answer: Esta senha é muito curta. Ela precisa conter pelo menos 8 caracteres. Esta senha é muito comum.
+  We will answer: y 
+  OK user createsuperuser
+  Now in the same cli we will run the admin sit
+  python manage.py runserver 0.0.0.0:8000
+  Now in cli 3 we'll work with the django service
+  run docker compose exec -it django bash
+  in the bash 
+  run pipenv shell
+  in the shell
+  to start the service that will take the video comes from admin django in chunks and send to service on golang to join the chunks and convert to mpge.dash
+  run  python manage.py consumer_register_processed_video_path 
+  Starting consumer....
+  Waiting for messages....
+  ok is it work
+  Nom on cli 4 we'll repit the sema process
+   run docker compose exec -it django bash
+  in the bash 
+  run pipenv shell
+  in the shell
+  python manage.py  consumer_upload_chunks_to_external_storage
+  Starting consumer....
+  Waiting for messages....
+  ok it is working
+3 Now we'll run the nextjs site to receive and show the video
+  on cli 5 we'll run this command in the same folder
+  docker compose exec -it nextjs bash
+  in the bash we' run this command
+  if it will be the first time
+  run npm i
+   run npm run  dev 
+
+  But if isn't the first time 
+  run npm run  dev
+   after that your aplication is fully up
+
+
