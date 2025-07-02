@@ -11,7 +11,7 @@ wait_for_container() {
     local container=$1
     echo "⏳ Aguardando container '$container' estar pronto..."
     while true; do
-        if docker compose exec -T "$container" echo "✅ $container pronto" &>/dev/null; then
+        if docker-compose exec -T "$container" echo "✅ $container pronto" &>/dev/null; then
             echo "✅ Container '$container' está pronto!"
             return 0
         fi
@@ -37,28 +37,28 @@ kill_port 3001   # Precaução, caso Next tenha usado
 kill_port 3002   # Precaução, caso Next tenha usado
 
 echo "🔧 Subindo containers..."
-docker compose up -d --build
+docker-compose up -d --build
 
 wait_for_container django
 
 echo "📦 Instalando dependências do Django..."
-docker compose exec -T django bash -c "
+docker-compose exec -T django bash -c "
 command -v pipenv >/dev/null 2>&1 || (echo '⚙️ Instalando pipenv...' && pip install pipenv)
 pipenv install
 "
 
 echo "🔎 Verificando migrações pendentes..."
-MIGRATIONS_PENDING=$(docker compose exec -T django bash -c 'pipenv run python manage.py showmigrations | grep "\[ \]"' | wc -l)
+MIGRATIONS_PENDING=$(docker-compose exec -T django bash -c 'pipenv run python manage.py showmigrations | grep "\[ \]"' | wc -l)
 
 if [ "$MIGRATIONS_PENDING" -gt 0 ]; then
     echo "⚒️ Migrações pendentes detectadas, aplicando..."
-    run_or_fail "docker compose exec -T django bash -c 'pipenv run python manage.py migrate'"
+    run_or_fail "docker-compose exec -T django bash -c 'pipenv run python manage.py migrate'"
 else
     echo "✅ Nenhuma migração pendente"
 fi
 
 echo "👤 Garantindo superusuário Django..."
-docker compose exec -T django bash -c "
+docker-compose exec -T django bash -c "
 pipenv run python manage.py shell -c \"
 from django.contrib.auth import get_user_model;
 User = get_user_model();
@@ -71,10 +71,10 @@ wait_for_container go_app_dev
 wait_for_container nextjs
 
 echo "🎬 Iniciando consumidor Django - Upload Chunks (em background)..."
-docker compose exec -T django bash -c "pipenv run python manage.py consumer_upload_chunks_to_external_storage" &
+docker-compose exec -T django bash -c "pipenv run python manage.py consumer_upload_chunks_to_external_storage" &
 
 echo "📡 Iniciando consumidor Django - Registro Processamento (em background)..."
-docker compose exec -T django bash -c "pipenv run python manage.py consumer_register_processed_video_path" &
+docker-compose exec -T django bash -c "pipenv run python manage.py consumer_register_processed_video_path" &
 
 sleep 5
 
@@ -82,7 +82,7 @@ echo ""
 echo "✅ Ambiente pronto! Logs a seguir:"
 echo ""
 
-docker compose logs -f django go_app_dev nextjs
+docker-compose logs -f django go_app_dev nextjs
 
 
 # #!/bin/bash
