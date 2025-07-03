@@ -1,12 +1,12 @@
 
-GET http://localhost:8000/api/videos
+GET http://54.235.157.122/:8000/api/videos
 
 
 ###
-GET http://localhost:8000/api/videos/1
+GET http://54.235.157.122/:8000/api/videos/1
 
 ###
-GET http://localhost:8000/api/videos/video-1
+GET http://54.235.157.122/:8000/api/videos/video-1
 
 ###
-GET http://localhost:8000/api/videos/1/recommended
+GET http://54.235.157.122/:8000/api/videos/1/recommended

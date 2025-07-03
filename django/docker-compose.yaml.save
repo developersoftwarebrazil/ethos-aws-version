@@ -7,24 +7,22 @@ services:
   django:
     build: .
     command: bash -c "pipenv install && pipenv run python manage.py migrate && pipenv run python manage.py runserver 0.0.0.0:8000"
+    
     ports:
       - 8000:8000
     environment:
       - DATABASE_URL=postgres://postgres:root@postgres:5432/django_videos
+      #- DATABASE_URL=sqlite:///db.sqlite3\
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
-      - EC2_PUBLIC_IP=54.235.157.122  # ✅ Substituindo o ASSETS_URL pelo EC2_PUBLIC_IP, mais flexível
-    volumes:
+     loads
+      - EC2_PUBLIC_IP=54.235.157.122   # <-- Aqui você coloca o IP público da EC2
+ 
+   volumes:
       - .:/home/my-user/app
       - external-storage:/media/uploads
     extra_hosts:
       - host.docker.internal:host-gateway
-
-    # ⛔ Código antigo duplicado e com indentação errada:
-    #    volumes:
-    #      - .:/home/my-user/app
-    #      - external-storage:/media/uploads
-    #    extra_hosts:
-    #      - host.docker.internal:host-gateway
+   
 
   consumer_upload_chunks:
     build: .
@@ -53,7 +51,6 @@ services:
     depends_on:
       - django
       - rabbitmq
-
   change_media_permission:
     build: .
     user: root
@@ -63,6 +60,15 @@ services:
     depends_on:
       - django
 
+
 volumes:
   external-storage:
     external: true
+# Windows - WSL
+
+# C:\Windows\System32\drivers\etc\hosts (bloco em notas admin)
+
+#Mac ou Linux
+# /etc/hosts
+
+# 127.0.0.1 host.docker.internal

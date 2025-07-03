@@ -6,8 +6,8 @@ import { Navbar } from "../components/Navbar/Navbar";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "FCTube",
-  description: "A YouTube clone built with Next.js",
+  title: "ETHOS",
+  description: "Uma escola determinada a formar melhores seres humanos",
 };
 
 export default function RootLayout({

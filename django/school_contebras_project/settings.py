@@ -153,8 +153,15 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MEDIA_URL = os.environ.get('ASSETS_URL', ' ') + '/'
+IP_PUBLICO_EC2 = os.environ.get('EC2_PUBLIC_IP', 'localhost')  # Fallback para localhost
+
+MEDIA_URL = f"http://{IP_PUBLICO_EC2}:9000/media/uploads/"
+
+#MEDIA_URL = os.environ.get('ASSETS_URL', ' ') + '/'
+
 MEDIA_ROOT = '/media/uploads/'
 
 RABBITMQ_URL = os.environ.get('RABBITMQ_URL')
-ASSETS_URL = os.environ.get('ASSETS_URL')
+
+#ASSETS_URL = os.environ.get('ASSETS_URL')
+ASSETS_URL = MEDIA_URL  # Se ainda precisar do ASSETS_URL em outras partes
